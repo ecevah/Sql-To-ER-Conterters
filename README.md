@@ -207,14 +207,14 @@ http://localhost:3000
 
 ## Proje Yapısı
 
-\`\`\`bash
+```bash
 MsSQL-To-ER-Converter/
-├── server.js           # Sunucu tarafı kodu (Node.js ve Express)
-├── package.json        # Proje bağımlılıkları ve script'ler
-├── package-lock.json   # Bağımlılıkların kilit dosyası
-└── public/             # İstemci tarafı dosyaları
-    └── index.html      # Ana HTML dosyası ve JavaScript kodu
-\`\`\`
+├── server.js           
+├── package.json        
+├── package-lock.json  
+└── public/             
+    └── index.html      
+```
 
 ## Katkıda Bulunma
 
