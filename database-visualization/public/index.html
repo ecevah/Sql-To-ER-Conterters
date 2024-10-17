@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <title>Veritabanı Şeması ve ER Diyagramı</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+        }
+        .table-container, .diagram-container {
+            margin-bottom: 40px;
+        }
+        h2, h3 {
+            background-color: #f2f2f2;
+            padding: 10px;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 10px;
+        }
+        th, td {
+            border: 1px solid #ccc;
+            padding: 8px;
+            text-align: left;
+            font-size: 14px;
+        }
+        th {
+            background-color: #e6e6e6;
+        }
+        .button-container {
+            margin-bottom: 20px;
+        }
+        button {
+            padding: 10px 20px;
+            margin-right: 10px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+        /* Diagram stili */
+        .diagram {
+            width: 100%;
+            height: 80vh;
+            overflow: auto;
+            border: 1px solid #ccc;
+        }
+        /* Mermaid diyagramı için özel stil */
+        .mermaid {
+            font-size: 16px;
+        }
+        #download-button {
+            margin-top: 10px;
+        }
+    </style>
+    <!-- Mermaid.js ve svg-crowbar'ı ekleyelim -->
+    <script src="https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/svg-crowbar/svg-crowbar.js"></script>
+    <script>
+        mermaid.initialize({
+            startOnLoad: false,
+            theme: 'default',
+            flowchart: {
+                useMaxWidth: false,
+                htmlLabels: true,
+                curve: 'basis'
+            },
+            er: {
+                useMaxWidth: false
+            },
+            securityLevel: 'loose'
+        });
+    </script>
+</head>
+<body>
+
+<h1>Veritabanı Şeması ve ER Diyagramı</h1>
+
+<div class="button-container">
+    <button onclick="loadSchema()">Şemayı Görüntüle</button>
+    <button onclick="loadRelationships()">İlişkileri Görüntüle</button>
+    <button onclick="loadERDiagram()">ER Diyagramını Görüntüle</button>
+</div>
+
+<div id="content-container"></div>
+
+<script>
+    let mermaidTextGlobal = ''; // Mermaid metnini global olarak saklıyoruz
+
+    function loadSchema() {
+        // ... (Daha önceki loadSchema fonksiyonu kodu)
+    }
+
+    function loadRelationships() {
+        // ... (Daha önceki loadRelationships fonksiyonu kodu)
+    }
+
+    function loadERDiagram() {
+        Promise.all([
+            fetch('/schema').then(response => response.json()),
+            fetch('/relationships').then(response => response.json())
+        ])
+        .then(([schemaData, relationshipsData]) => {
+            const contentContainer = document.getElementById('content-container');
+            contentContainer.innerHTML = ''; // Önceki içeriği temizle
+
+            const diagramContainer = document.createElement('div');
+            diagramContainer.className = 'diagram-container';
+
+            const diagramTitle = document.createElement('h2');
+            diagramTitle.textContent = 'ER Diyagramı';
+            diagramContainer.appendChild(diagramTitle);
+
+            // Mermaid ER diyagramı metnini oluştur
+            let mermaidText = 'erDiagram\n';
+
+            // Tablolar ve sütunları ekle
+            const tables = {};
+
+            schemaData.forEach(column => {
+                const tableName = column.TABLE_NAME;
+                const columnName = column.COLUMN_NAME;
+                const dataType = column.DATA_TYPE;
+
+                if (!tables[tableName]) {
+                    tables[tableName] = [];
+                }
+
+                tables[tableName].push(`${columnName} ${dataType}`);
+            });
+
+            for (const tableName in tables) {
+                mermaidText += `  ${tableName} {\n`;
+                tables[tableName].forEach(columnDef => {
+                    mermaidText += `    ${columnDef}\n`;
+                });
+                mermaidText += `  }\n`;
+            }
+
+            // İlişkileri ekle
+            relationshipsData.forEach(rel => {
+                mermaidText += `  ${rel.ParentTable} }|--|| ${rel.ReferencedTable} : "${rel.ForeignKeyName}"\n`;
+            });
+
+            mermaidTextGlobal = mermaidText; // Mermaid metnini global değişkene atadık
+
+            const diagramElement = document.createElement('div');
+            diagramElement.className = 'mermaid';
+            diagramElement.id = 'er-diagram';
+            diagramElement.textContent = mermaidText;
+
+            diagramContainer.appendChild(diagramElement);
+
+            // İndirme butonunu ekle
+            const downloadButton = document.createElement('button');
+            downloadButton.id = 'download-button';
+            downloadButton.textContent = 'Diyagramı İndir (SVG)';
+            downloadButton.onclick = downloadSVG;
+            diagramContainer.appendChild(downloadButton);
+
+            contentContainer.appendChild(diagramContainer);
+
+            // Mermaid diyagramını yeniden başlat
+            mermaid.init(undefined, diagramElement);
+
+        })
+        .catch(error => {
+            console.error('Veriler alınırken hata oluştu:', error);
+        });
+    }
+
+    function downloadSVG() {
+        const svgElement = document.querySelector('#er-diagram svg');
+        if (svgElement) {
+            // SVG içeriğini al
+            const serializer = new XMLSerializer();
+            let source = serializer.serializeToString(svgElement);
+
+            // Başına XML deklarasyonu ekle
+            source = '<?xml version="1.0" standalone="no"?>\r\n' + source;
+
+            // Data URI oluştur
+            const url = "data:image/svg+xml;charset=utf-8," + encodeURIComponent(source);
+
+            // İndirme linki oluştur
+            const downloadLink = document.createElement('a');
+            downloadLink.href = url;
+            downloadLink.download = 'er_diagram.svg';
+
+            document.body.appendChild(downloadLink);
+            downloadLink.click();
+            document.body.removeChild(downloadLink);
+        } else {
+            alert('SVG diyagramı bulunamadı.');
+        }
+    }
+</script>
+
+</body>
+</html>

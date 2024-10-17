@@ -1,0 +1,36 @@
+# Node.js modülleri
+node_modules/
+
+# Log dosyaları
+logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Ortam değişkenleri dosyaları
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# Geçici dosyalar
+tmp/
+temp/
+*.tmp
+*.temp
+
+# Derleme çıktıları
+dist/
+build/
+
+# IDE ve editör dosyaları
+.vscode/
+.idea/
+
+# MacOS özel dosyaları
+.DS_Store
+
+# Diyagram dosyaları (eğer depoda tutmak istemiyorsanız)
+public/er_diagram.svg
